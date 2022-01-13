@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Authelia.Database.Model", "Authelia.Database.Model\Authelia.Database.Model.csproj", "{19239248-9438-465B-9B48-609B1F2104DB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Authelia.Database", "Authelia.Database.Model\Authelia.Database.csproj", "{19239248-9438-465B-9B48-609B1F2104DB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Authelia.Server", "Authelia.Server\Authelia.Server.csproj", "{D9E0D051-9DE9-4B0C-941D-41E8FEA6F759}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Authelia.Server", "Authelia.Server\Authelia.Server.csproj", "{D9E0D051-9DE9-4B0C-941D-41E8FEA6F759}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Authelia.Client", "Authelia.Client\Authelia.Client.csproj", "{C4C136EB-7261-4E60-8E03-C2F5C54B7A06}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Authelia.Client", "Authelia.Client\Authelia.Client.csproj", "{C4C136EB-7261-4E60-8E03-C2F5C54B7A06}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
