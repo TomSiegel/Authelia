@@ -1,9 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Authelia.Server.Configuration;
+using Authelia.Server.Extensions;
+using Authelia.Server.Exceptions;
 using Authelia.Database.Model;
 using FluentValidation.AspNetCore;
 using Mapster;
-using MapsterMapper;
+using Microsoft.AspNetCore.Diagnostics;
 
 namespace Authelia.Server
 {
@@ -35,7 +37,6 @@ namespace Authelia.Server
                 options.UseMySQL(settings.GetConnectionString());
             });
             services.AddSingleton<Security.IPasswordSecurer, Security.Password256HashSecurer>();
-
             
         }
 
@@ -57,6 +58,17 @@ namespace Authelia.Server
             {
                 endpoints.MapControllers();
             });
+
+            app.UseExceptionHandler(c => c.Run(async context =>
+            {
+                var exception = context.Features
+                    .Get<IExceptionHandlerPathFeature>()
+                    .Error;
+                var response = exception
+                    .Adapt<ErrorResponse>()
+                    .WithCode(ErrorCodes.S_UnknownServerError);
+                await context.Response.WriteAsJsonAsync(response);
+            }));
 
             TypeAdapterConfig.GlobalSettings.Scan(typeof(Startup).Assembly);
             FluentValidation.ValidatorOptions.Global.LanguageManager.Culture = new System.Globalization.CultureInfo("en-US");

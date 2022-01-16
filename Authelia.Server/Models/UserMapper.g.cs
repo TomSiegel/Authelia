@@ -10,10 +10,12 @@ namespace Authelia.Database.Model
                 UserName = p1.UserName,
                 UserPassword = p1.UserPassword,
                 UserOrder = p1.UserOrder,
-                UserCreated = p1.UserCreated,
+                UserCreatedUtc = p1.UserCreatedUtc,
                 UserCreatorIp = p1.UserCreatorIp,
                 UserVerified = p1.UserVerified,
-                UserMail = p1.UserMail
+                UserMail = p1.UserMail,
+                UserPhone = p1.UserPhone,
+                UserDeletedUtc = p1.UserDeletedUtc
             };
         }
         public static Authelia.Database.Model.User AdaptTo(this Authelia.Database.Model.UserDto p2, Authelia.Database.Model.User p3)
@@ -28,10 +30,12 @@ namespace Authelia.Database.Model
             result.UserName = p2.UserName;
             result.UserPassword = p2.UserPassword;
             result.UserOrder = p2.UserOrder;
-            result.UserCreated = p2.UserCreated;
+            result.UserCreatedUtc = p2.UserCreatedUtc;
             result.UserCreatorIp = p2.UserCreatorIp;
             result.UserVerified = p2.UserVerified;
             result.UserMail = p2.UserMail;
+            result.UserPhone = p2.UserPhone;
+            result.UserDeletedUtc = p2.UserDeletedUtc;
             return result;
             
         }
@@ -43,10 +47,12 @@ namespace Authelia.Database.Model
                 UserName = p4.UserName,
                 UserPassword = p4.UserPassword,
                 UserOrder = p4.UserOrder,
-                UserCreated = p4.UserCreated,
+                UserCreatedUtc = p4.UserCreatedUtc,
                 UserCreatorIp = p4.UserCreatorIp,
                 UserVerified = p4.UserVerified,
-                UserMail = p4.UserMail
+                UserMail = p4.UserMail,
+                UserPhone = p4.UserPhone,
+                UserDeletedUtc = p4.UserDeletedUtc
             };
         }
         public static Authelia.Database.Model.UserDto AdaptTo(this Authelia.Database.Model.User p5, Authelia.Database.Model.UserDto p6)
@@ -61,10 +67,12 @@ namespace Authelia.Database.Model
             result.UserName = p5.UserName;
             result.UserPassword = p5.UserPassword;
             result.UserOrder = p5.UserOrder;
-            result.UserCreated = p5.UserCreated;
+            result.UserCreatedUtc = p5.UserCreatedUtc;
             result.UserCreatorIp = p5.UserCreatorIp;
             result.UserVerified = p5.UserVerified;
             result.UserMail = p5.UserMail;
+            result.UserPhone = p5.UserPhone;
+            result.UserDeletedUtc = p5.UserDeletedUtc;
             return result;
             
         }

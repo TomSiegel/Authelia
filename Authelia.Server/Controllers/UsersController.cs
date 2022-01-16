@@ -16,10 +16,10 @@ namespace Authelia.Server.Controllers
     public class UsersController : ControllerBase
     {
         private readonly AutheliaDbContext dbContext;
-        private readonly CreateUserValidator createUserValidator;
+        private readonly UserCreateValidator createUserValidator;
         private readonly IPasswordSecurer passwordSecurer;
 
-        public UsersController(AutheliaDbContext dbContext, CreateUserValidator createUserValidator, IPasswordSecurer passwordSecurer)
+        public UsersController(AutheliaDbContext dbContext, UserCreateValidator createUserValidator, IPasswordSecurer passwordSecurer)
         {
             this.dbContext = dbContext;
             this.createUserValidator = createUserValidator;
@@ -59,7 +59,7 @@ namespace Authelia.Server.Controllers
                         .WithCode(ErrorCodes.C_InvalidUserCreationObject));
 
                 user.UserId = DbHelpers.CreateGuid();
-                user.UserCreated = DateTime.UtcNow;
+                user.UserCreatedUtc = DateTime.UtcNow;
                 user.UserCreatorIp = Request.HttpContext.Connection.RemoteIpAddress?.ToString();
                 user.UserVerified = 0;
                 user.UserPassword = passwordSecurer.Secure(user.UserPassword);
@@ -81,12 +81,6 @@ namespace Authelia.Server.Controllers
                     .WithCode(ErrorCodes.S_UnknownServerError));
             }
             
-        }
-
-        // PUT api/<UsersController>/5
-        [HttpPut("{id}")]
-        public void Put(string id, [FromBody] string value)
-        {
         }
 
         // DELETE api/<UsersController>/5

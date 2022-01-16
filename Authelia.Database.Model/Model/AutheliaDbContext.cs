@@ -40,18 +40,25 @@ namespace Authelia.Database.Model
 
                 entity.HasIndex(e => e.UserOrder, "idx_user_order");
 
+                entity.HasIndex(e => e.UserMail, "user_mail_UNIQUE")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.UserPhone, "user_phone_UNIQUE")
+                    .IsUnique();
+
                 entity.Property(e => e.UserId)
                     .HasMaxLength(32)
                     .HasColumnName("user_id");
 
-                entity.Property(e => e.UserCreated).HasColumnName("user_created");
+                entity.Property(e => e.UserCreatedUtc).HasColumnName("user_created_utc");
 
                 entity.Property(e => e.UserCreatorIp)
                     .HasMaxLength(45)
                     .HasColumnName("user_creator_ip");
 
+                entity.Property(e => e.UserDeletedUtc).HasColumnName("user_deleted_utc");
+
                 entity.Property(e => e.UserMail)
-                    .IsRequired()
                     .HasMaxLength(128)
                     .HasColumnName("user_mail");
 
@@ -69,6 +76,10 @@ namespace Authelia.Database.Model
                     .IsRequired()
                     .HasMaxLength(256)
                     .HasColumnName("user_password");
+
+                entity.Property(e => e.UserPhone)
+                    .HasMaxLength(15)
+                    .HasColumnName("user_phone");
 
                 entity.Property(e => e.UserVerified)
                     .HasColumnType("tinyint")
