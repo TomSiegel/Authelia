@@ -2,11 +2,11 @@
 {
     public class DbConnectionOptions
     {
-        public string? MySql { get; set; }
-        public string? MsSql { get; set; }
-        public string? Oracle { get; set; }
+        public string MySql { get; set; }
+        public string MsSql { get; set; }
+        public string Oracle { get; set; }
 
-        public string? GetConnectionString()
+        public string GetConnectionString()
         {
             if (!String.IsNullOrEmpty(MySql)) return MySql;
             if (!String.IsNullOrEmpty(MsSql)) return MsSql;

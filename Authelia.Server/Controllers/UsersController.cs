@@ -6,6 +6,7 @@ using Authelia.Server.Security;
 using Authelia.Server.Exceptions;
 using Authelia.Server.Extensions;
 using Mapster;
+using Microsoft.AspNetCore.Authorization;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -28,14 +29,14 @@ namespace Authelia.Server.Controllers
 
 
         // GET: api/<UsersController>
-        [HttpGet]
+        [HttpGet, Authorize]
         public IEnumerable<User> Get()
         {
             return dbContext.Users;
         }
 
         // GET api/<UsersController>/5
-        [HttpGet("{id}")]
+        [HttpGet("{id}"), Authorize]
         public ActionResult Get(string id)
         {
             var user = dbContext.Users.FirstOrDefault(x => x.UserId == id);

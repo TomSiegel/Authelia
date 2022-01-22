@@ -3,6 +3,7 @@
     public static class ErrorCodes
     {
         public const string C_InvalidUserCreationObject = "A-4001";
+        public const string C_InvalidUserLoginObject = "A-4002";
 
 
 

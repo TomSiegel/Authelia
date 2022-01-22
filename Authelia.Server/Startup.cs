@@ -37,7 +37,8 @@ namespace Authelia.Server
                 options.UseMySQL(settings.GetConnectionString());
             });
             services.AddSingleton<Security.IPasswordSecurer, Security.Password256HashSecurer>();
-            
+            services.AddAutheliaAuthentication(Configuration);
+            services.AddAutheliaAuthorization();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -51,7 +52,7 @@ namespace Authelia.Server
             }
 
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
@@ -69,6 +70,7 @@ namespace Authelia.Server
                     .WithCode(ErrorCodes.S_UnknownServerError);
                 await context.Response.WriteAsJsonAsync(response);
             }));
+
 
             TypeAdapterConfig.GlobalSettings.Scan(typeof(Startup).Assembly);
             FluentValidation.ValidatorOptions.Global.LanguageManager.Culture = new System.Globalization.CultureInfo("en-US");

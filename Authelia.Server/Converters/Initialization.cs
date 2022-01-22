@@ -21,7 +21,7 @@ namespace Authelia.Server.Converters
         public void Register(TypeAdapterConfig config)
         {
             config.NewConfig<Exception, ErrorResponse>()
-                .Map(d => d.Message, s => s.Message + "iasndia")
+                .Map(d => d.Message, s => s.Message)
                 .Map(d => d.InnerError, s => s.InnerException);
 
             config.NewConfig<ValidationResult, ErrorResponse>()

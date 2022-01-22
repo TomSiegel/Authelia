@@ -2,6 +2,11 @@
 using Authelia.Server.Security;
 using Authelia.Database.Model;
 using FluentValidation;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace Authelia.Server.Extensions
 {
@@ -55,5 +60,24 @@ namespace Authelia.Server.Extensions
         }
 
        
+        public static IServiceCollection AddAutheliaAuthentication(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options => configuration.Bind("CookieSettings", options));
+            return services;
+        }
+
+        public static IServiceCollection AddAutheliaAuthorization(this IServiceCollection services)
+        {      
+            services.AddAuthorization();
+            return services;
+        }
+
+        public static IApplicationBuilder UseAutheliaAuthentication(this IApplicationBuilder app)
+        {
+            app.UseAuthentication();
+
+            return app;
+        }
     }
 }
