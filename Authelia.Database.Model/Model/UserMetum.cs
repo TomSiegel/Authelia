@@ -10,5 +10,7 @@ namespace Authelia.Database.Model
         public string UserId { get; set; }
         public string UserMetaKey { get; set; }
         public string UserMetaValue { get; set; }
+
+        public virtual User User { get; set; }
     }
 }

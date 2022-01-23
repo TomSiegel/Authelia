@@ -19,6 +19,7 @@ namespace Authelia.Database.Model
 
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<UserMetum> UserMeta { get; set; }
+        public virtual DbSet<UserToken> UserTokens { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -88,7 +89,7 @@ namespace Authelia.Database.Model
 
             modelBuilder.Entity<UserMetum>(entity =>
             {
-                entity.HasKey(e => e.UserId)
+                entity.HasKey(e => new { e.UserId, e.UserMetaKey })
                     .HasName("PRIMARY");
 
                 entity.ToTable("user_meta");
@@ -101,13 +102,46 @@ namespace Authelia.Database.Model
                     .HasColumnName("user_id");
 
                 entity.Property(e => e.UserMetaKey)
-                    .IsRequired()
                     .HasMaxLength(50)
                     .HasColumnName("user_meta_key");
 
                 entity.Property(e => e.UserMetaValue)
                     .HasMaxLength(256)
                     .HasColumnName("user_meta_value");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.UserMeta)
+                    .HasForeignKey(d => d.UserId)
+                    .HasConstraintName("FK_META_USER");
+            });
+
+            modelBuilder.Entity<UserToken>(entity =>
+            {
+                entity.ToTable("user_tokens");
+
+                entity.HasIndex(e => e.UserId, "FK_TOKEN_USER_idx");
+
+                entity.Property(e => e.UserTokenId)
+                    .HasMaxLength(256)
+                    .HasColumnName("user_token_id");
+
+                entity.Property(e => e.TokenCreatedUtc).HasColumnName("token_created_utc");
+
+                entity.Property(e => e.TokenCreatorIp)
+                    .HasMaxLength(45)
+                    .HasColumnName("token_creator_ip");
+
+                entity.Property(e => e.TokenExpiration).HasColumnName("token_expiration");
+
+                entity.Property(e => e.UserId)
+                    .IsRequired()
+                    .HasMaxLength(32)
+                    .HasColumnName("user_id");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.UserTokens)
+                    .HasForeignKey(d => d.UserId)
+                    .HasConstraintName("FK_TOKEN_USER");
             });
 
             OnModelCreatingPartial(modelBuilder);

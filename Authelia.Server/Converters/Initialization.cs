@@ -9,13 +9,33 @@ namespace Authelia.Server.Converters
     {
         public void Register(CodeGenerationConfig config)
         {
-            config.AdaptTwoWays("[name]Dto")
-                .ForType<User>()
-                .ForType<UserMetum>();
+            config.AdaptTo("[name]Dto")
+                .ForType<UserMetum>()
+                .ForType<UserToken>()
+                .ForType<User>(options =>
+                {
+                    options.Ignore(x => x.UserTokens);
+                    options.Ignore(x => x.UserMeta);
+                });
 
-            config.GenerateMapper("[name]Mapper")
-                .ForType<User>()
-                .ForType<UserMetum>();
+            config.AdaptTo("[name]SafeDto")
+                .ForType<UserMetum>()
+                .ForType<UserToken>(options =>
+                {
+                    options.Ignore(x => x.TokenCreatorIp);
+                    options.Ignore(x => x.User);
+                })
+                .ForType<User>(options =>
+                {
+                    options.Ignore(x => x.UserPassword);
+                    options.Ignore(x => x.UserTokens);
+                    options.Ignore(x => x.UserMeta);
+                });
+
+            //config.GenerateMapper("[name]Mapper")
+            //    .ForType<UserMetum>()
+            //    .ForType<UserToken>()
+            //    .ForType<User>();
         }
 
         public void Register(TypeAdapterConfig config)

@@ -8,14 +8,13 @@ using Microsoft.AspNetCore.Authentication;
 using Authelia.Server.Authentication;
 using Authelia.Server.Exceptions;
 using Authelia.Server.Extensions;
-using System.Security.Claims;
+using Authelia.Server.Helpers;
 using Mapster;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
+using Authelia.Server.Authorization;
 
 namespace Authelia.Server.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class AuthenticationController : ControllerBase
     {
@@ -43,23 +42,14 @@ namespace Authelia.Server.Controllers
             try
             {
                 var password = passwordSecurer.Secure(user.Password);
-                var result = dbContext.Users.FirstOrDefault(u => (
+                var userResult = dbContext.Users.FirstOrDefault(u => (
                     u.UserName == user.UserName ||
                     u.UserMail == user.UserName ||
                     u.UserPhone == user.UserName) && u.UserPassword == password);
 
-                if (result == null) return NotFound("user not registered");
+                if (userResult == null) return NotFound("user not registered");
 
-                var claims = new Claim[] {
-                    new Claim(ClaimConstants.Username, result.UserName),
-                    new Claim(ClaimConstants.Email, result.UserMail ?? ""),
-                    new Claim(ClaimConstants.Phone, result.UserPhone ?? ""),
-                    new Claim(ClaimConstants.Verified, result.UserVerified.ToString())
-                };
-                var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                var principal = new ClaimsPrincipal(identity);
-                
-                await HttpContext.SignInAsync(principal);
+                await userResult.SignInAsync(HttpContext);
 
                 if (!string.IsNullOrEmpty(returnUrl))
                 {
@@ -87,6 +77,41 @@ namespace Authelia.Server.Controllers
             }
 
             return Ok();
+        }
+
+        [HttpGet("token"), Authorize]
+        public async Task<IActionResult> CreateToken()
+        {
+            try
+            {
+                var id = HttpContext.User.GetClaim(ClaimConstants.UserIdentifier);
+                var user = dbContext.Users.FirstOrDefault(u => u.UserId == id);
+
+                if (user == null)
+                    return NotFound("currently authenticated user is not registered");
+
+                var timestamp = DateTime.UtcNow;
+                var tokenId = DbHelpers.CreateGuid();
+                var token = new UserToken()
+                {
+                    TokenCreatedUtc = timestamp,
+                    TokenCreatorIp = HttpContext.GetUserIp(),
+                    TokenExpiration = timestamp.AddHours(1),
+                    UserId = user.UserId,
+                    UserTokenId = passwordSecurer.Secure(tokenId)
+                };
+
+                await dbContext.UserTokens.AddAsync(token);
+                await dbContext.SaveChangesAsync();
+
+                return new JsonResult(token
+                    .Adapt<UserTokenSafeDto>()
+                    .WithToken(tokenId));
+            } catch (Exception ex)
+            {
+                return StatusCode(500, ex.Adapt<ErrorResponse>()
+                    .WithCode(ErrorCodes.S_UnknownServerError));
+            }
         }
     }
 }

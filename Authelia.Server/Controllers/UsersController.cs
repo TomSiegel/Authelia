@@ -5,8 +5,9 @@ using Authelia.Server.Helpers;
 using Authelia.Server.Security;
 using Authelia.Server.Exceptions;
 using Authelia.Server.Extensions;
+using Authelia.Server.Authorization;
 using Mapster;
-using Microsoft.AspNetCore.Authorization;
+
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -30,20 +31,20 @@ namespace Authelia.Server.Controllers
 
         // GET: api/<UsersController>
         [HttpGet, Authorize]
-        public IEnumerable<User> Get()
+        public IEnumerable<UserSafeDto> Get()
         {
-            return dbContext.Users;
+            return dbContext.Users.Select(x => x.Adapt<UserSafeDto>());
         }
 
         // GET api/<UsersController>/5
         [HttpGet("{id}"), Authorize]
-        public ActionResult Get(string id)
+        public IActionResult Get(string id)
         {
             var user = dbContext.Users.FirstOrDefault(x => x.UserId == id);
 
             if (user == null) return NotFound($"user with id {id} not found");
 
-            return new JsonResult(user);
+            return new JsonResult(user.Adapt<UserSafeDto>());
         }
 
         // POST api/<UsersController>
@@ -64,6 +65,8 @@ namespace Authelia.Server.Controllers
                 user.UserCreatorIp = Request.HttpContext.Connection.RemoteIpAddress?.ToString();
                 user.UserVerified = 0;
                 user.UserPassword = passwordSecurer.Secure(user.UserPassword);
+                user.UserMail = user.UserMail.RemoveWhitespace();
+                user.UserPhone = user.UserPhone.RemoveWhitespace();
             }
 
             try
@@ -75,7 +78,7 @@ namespace Authelia.Server.Controllers
   
                 await dbContext.SaveChangesAsync();
 
-                return new JsonResult(users);
+                return new JsonResult(users.Select(x => x.Adapt<UserSafeDto>()));
             } catch(Exception ex)
             {
                 return StatusCode(500, ex.Adapt<ErrorResponse>()

@@ -1,12 +1,10 @@
 ﻿using Authelia.Server.Exceptions;
 using Authelia.Server.Security;
+using Authelia.Server.Authentication;
 using Authelia.Database.Model;
 using FluentValidation;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 namespace Authelia.Server.Extensions
 {
@@ -37,6 +35,17 @@ namespace Authelia.Server.Extensions
             return response;
         }
 
+        public static UserTokenSafeDto WithToken(this UserTokenSafeDto userToken, string token)
+        {
+            userToken.UserTokenId = token;
+            return userToken;
+        }
+
+        public static UserTokenDto WithToken(this UserTokenDto userToken, string token)
+        {
+            userToken.UserTokenId = token;
+            return userToken;
+        }
 
 
         public  static IRuleBuilderOptions<UserDto, string> PhoneNumber(this IRuleBuilderOptions<UserDto, string> builder)
@@ -60,10 +69,13 @@ namespace Authelia.Server.Extensions
         }
 
        
-        public static IServiceCollection AddAutheliaAuthentication(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddAutheliaAuthentication(this IServiceCollection services)
         {
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options => configuration.Bind("CookieSettings", options));
+                .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddScheme<AutheliaAuthenticationOptions, AutheliaAuthenticationHandler>(AutheliaSchemes.AutheliaScheme, options => {
+
+                });
             return services;
         }
 
@@ -78,6 +90,18 @@ namespace Authelia.Server.Extensions
             app.UseAuthentication();
 
             return app;
+        }
+
+        public static string GetClaim(this ClaimsPrincipal principal, string type)
+        {
+            if (principal == null) throw new ArgumentNullException(nameof(principal));
+
+            foreach (var item in principal.Claims)
+            {
+                if (item.Type == type) return item.Value;
+            }
+
+            return null;
         }
     }
 }

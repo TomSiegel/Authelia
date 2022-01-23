@@ -7,6 +7,12 @@ namespace Authelia.Database.Model
 {
     public partial class User
     {
+        public User()
+        {
+            UserMeta = new HashSet<UserMetum>();
+            UserTokens = new HashSet<UserToken>();
+        }
+
         public string UserId { get; set; }
         public string UserName { get; set; }
         public string UserPassword { get; set; }
@@ -17,5 +23,8 @@ namespace Authelia.Database.Model
         public string UserMail { get; set; }
         public string UserPhone { get; set; }
         public DateTime? UserDeletedUtc { get; set; }
+
+        public virtual ICollection<UserMetum> UserMeta { get; set; }
+        public virtual ICollection<UserToken> UserTokens { get; set; }
     }
 }
