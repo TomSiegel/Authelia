@@ -7,6 +7,7 @@ using Authelia.Server.Exceptions;
 using Authelia.Server.Extensions;
 using Authelia.Server.Authorization;
 using Mapster;
+using Microsoft.EntityFrameworkCore;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -31,16 +32,18 @@ namespace Authelia.Server.Controllers
 
         // GET: api/<UsersController>
         [HttpGet, Authorize]
-        public IEnumerable<UserSafeDto> Get()
+        public async Task<IActionResult> Get()
         {
-            return dbContext.Users.Select(x => x.Adapt<UserSafeDto>());
+            var result = await dbContext.Users.Where(x => x.UserDeletedUtc == null).ToListAsync();
+
+            return new JsonResult(result.Select(x => x.Adapt<UserSafeDto>()));
         }
 
         // GET api/<UsersController>/5
         [HttpGet("{id}"), Authorize]
-        public IActionResult Get(string id)
+        public async Task<IActionResult> Get(string id)
         {
-            var user = dbContext.Users.FirstOrDefault(x => x.UserId == id);
+            var user = await dbContext.Users.FirstOrDefaultAsync(x => x.UserId == id);
 
             if (user == null) return NotFound($"user with id {id} not found");
 
@@ -48,8 +51,8 @@ namespace Authelia.Server.Controllers
         }
 
         // POST api/<UsersController>
-        [HttpPost]
-        public async Task<ActionResult> Post([FromBody] UserDto[] users)
+        [HttpPost, Authorize]
+        public async Task<IActionResult> Post([FromBody] UserDto[] users)
         {
             foreach (var user in users)
             {
@@ -88,9 +91,18 @@ namespace Authelia.Server.Controllers
         }
 
         // DELETE api/<UsersController>/5
-        [HttpDelete("{id}")]
-        public void Delete(string id)
+        [HttpDelete("{id}"), Authorize]
+        public async Task<IActionResult> Delete(string id)
         {
+            var user = await dbContext.Users.FirstOrDefaultAsync(x => x.UserId == id);
+
+            if (user == null) return NotFound($"user with id {id} not found");
+
+            user.UserDeletedUtc = DateTime.UtcNow;
+
+            await dbContext.SaveChangesAsync();
+
+            return new JsonResult(user);
         }
     }
 }

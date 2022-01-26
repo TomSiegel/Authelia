@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Authelia.Server.Requests.Entities;
 using Authelia.Server.Validation;
 using Authelia.Server.Security;
@@ -30,7 +30,7 @@ namespace Authelia.Server.Controllers
         }
 
 
-        [HttpPost("login")]
+        [HttpPost("login"), AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginUser user, [FromQuery]string returnUrl)
         {
             var validation = await userLoginValidator.ValidateAsync(user);
@@ -42,7 +42,7 @@ namespace Authelia.Server.Controllers
             try
             {
                 var password = passwordSecurer.Secure(user.Password);
-                var userResult = dbContext.Users.FirstOrDefault(u => (
+                var userResult = await dbContext.Users.FirstOrDefaultAsync(u => (
                     u.UserName == user.UserName ||
                     u.UserMail == user.UserName ||
                     u.UserPhone == user.UserName) && u.UserPassword == password);
@@ -85,7 +85,7 @@ namespace Authelia.Server.Controllers
             try
             {
                 var id = HttpContext.User.GetClaim(ClaimConstants.UserIdentifier);
-                var user = dbContext.Users.FirstOrDefault(u => u.UserId == id);
+                var user = await dbContext.Users.FirstOrDefaultAsync(u => u.UserId == id);
 
                 if (user == null)
                     return NotFound("currently authenticated user is not registered");
