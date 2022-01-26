@@ -41,9 +41,9 @@ namespace Authelia.Server.Controllers
 
         // GET api/<UsersController>/5
         [HttpGet("{id}"), Authorize]
-        public async Task<IActionResult> Get(string id)
+        public async Task<IActionResult> Get([FromRoute] string id)
         {
-            var user = await dbContext.Users.FirstOrDefaultAsync(x => x.UserId == id);
+            var user = await dbContext.Users.SingleOrDefaultAsync(x => x.UserId == id);
 
             if (user == null) return NotFound($"user with id {id} not found");
 
@@ -92,9 +92,9 @@ namespace Authelia.Server.Controllers
 
         // DELETE api/<UsersController>/5
         [HttpDelete("{id}"), Authorize]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete([FromRoute] string id)
         {
-            var user = await dbContext.Users.FirstOrDefaultAsync(x => x.UserId == id);
+            var user = await dbContext.Users.SingleOrDefaultAsync(x => x.UserId == id);
 
             if (user == null) return NotFound($"user with id {id} not found");
 

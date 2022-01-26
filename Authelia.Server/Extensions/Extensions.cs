@@ -5,6 +5,7 @@ using Authelia.Database.Model;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
+using Mapster;
 
 namespace Authelia.Server.Extensions
 {
@@ -47,6 +48,13 @@ namespace Authelia.Server.Extensions
             return userToken;
         }
 
+        public static IEnumerable<TOut> AdaptList<TIn, TOut>(this IEnumerable<TIn> source)
+        {
+            foreach (var item in source)
+            {
+                yield return item.Adapt<TOut>();
+            }
+        }
 
         public  static IRuleBuilderOptions<UserDto, string> PhoneNumber(this IRuleBuilderOptions<UserDto, string> builder)
         {

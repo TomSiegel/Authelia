@@ -85,7 +85,7 @@ namespace Authelia.Server.Controllers
             try
             {
                 var id = HttpContext.User.GetClaim(ClaimConstants.UserIdentifier);
-                var user = await dbContext.Users.FirstOrDefaultAsync(u => u.UserId == id);
+                var user = await dbContext.Users.SingleOrDefaultAsync(u => u.UserId == id);
 
                 if (user == null)
                     return NotFound("currently authenticated user is not registered");
