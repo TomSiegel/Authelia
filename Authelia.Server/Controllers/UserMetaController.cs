@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Authelia.Database.Model;
+using Authelia.Server.Requests.Entities;
 using Authelia.Server.Exceptions;
 using Authelia.Server.Extensions;
 using Authelia.Server.Validation;
@@ -15,10 +16,10 @@ namespace Authelia.Server.Controllers
     public class UserMetaController : ControllerBase
     {
         private readonly AutheliaDbContext dbContext;
-        private readonly UserMetaSafeDtoCreateValidator createValidator;
-        private readonly UserMetaSafeDtoCreateValidator updateValidator;
+        private readonly UserMetaCreateValidator createValidator;
+        private readonly UserMetaUpdateValidator updateValidator;
 
-        public UserMetaController(AutheliaDbContext dbContext, UserMetaSafeDtoCreateValidator createValidator, UserMetaSafeDtoCreateValidator updateValidator)
+        public UserMetaController(AutheliaDbContext dbContext, UserMetaCreateValidator createValidator, UserMetaUpdateValidator updateValidator)
         {
             this.dbContext = dbContext;
             this.createValidator = createValidator;
@@ -46,7 +47,7 @@ namespace Authelia.Server.Controllers
 
         // POST api/<UserMetaController>
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] UserMetumSafeDto[] metaItems)
+        public async Task<IActionResult> Post([FromBody] UserMetaCreateRequest[] metaItems)
         {
             if (metaItems == null || metaItems.Length == 0)
             {
@@ -69,7 +70,7 @@ namespace Authelia.Server.Controllers
 
             try
             {
-                await dbContext.UserMeta.AddRangeAsync(metaItems.AdaptList<UserMetumSafeDto, UserMetum>());
+                await dbContext.UserMeta.AddRangeAsync(metaItems.AdaptList<UserMetaCreateRequest, UserMetum>());
                 await dbContext.SaveChangesAsync();
 
                 return new JsonResult(metaItems);
@@ -92,7 +93,7 @@ namespace Authelia.Server.Controllers
         }
 
         [HttpPost("{id}")]
-        public async Task<IActionResult> Post([FromRoute] string id, [FromBody] UserMetumSafeDto[] metaItems)
+        public async Task<IActionResult> Post([FromRoute] string id, [FromBody] UserMetaCreateRequest[] metaItems)
         {
             if (metaItems != null)
             {
@@ -107,7 +108,7 @@ namespace Authelia.Server.Controllers
 
         // PUT api/<UserMetaController>/5
         [HttpPut]
-        public async Task<IActionResult> Put([FromBody] UserMetumSafeDto[] metaItems)
+        public async Task<IActionResult> Put([FromBody] UserMetaUpdateRequest[] metaItems)
         {
             if (metaItems == null || metaItems.Length == 0)
             {
@@ -130,7 +131,7 @@ namespace Authelia.Server.Controllers
 
             try
             {
-                dbContext.UserMeta.UpdateRange(metaItems.AdaptList<UserMetumSafeDto, UserMetum>());
+                dbContext.UserMeta.UpdateRange(metaItems.AdaptList<UserMetaUpdateRequest, UserMetum>());
                 await dbContext.SaveChangesAsync();
 
                 return new JsonResult(metaItems);

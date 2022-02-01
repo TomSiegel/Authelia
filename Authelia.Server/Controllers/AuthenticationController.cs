@@ -31,7 +31,7 @@ namespace Authelia.Server.Controllers
 
 
         [HttpPost("login"), AllowAnonymous]
-        public async Task<IActionResult> Login([FromBody] LoginUser user, [FromQuery]string returnUrl)
+        public async Task<IActionResult> Login([FromBody] UserLoginRequest user, [FromQuery]string returnUrl)
         {
             var validation = await userLoginValidator.ValidateAsync(user);
 
@@ -105,7 +105,7 @@ namespace Authelia.Server.Controllers
                 await dbContext.SaveChangesAsync();
 
                 return new JsonResult(token
-                    .Adapt<UserTokenSafeDto>()
+                    .Adapt<UserTokenResponseDto>()
                     .WithToken(tokenId));
             } catch (Exception ex)
             {

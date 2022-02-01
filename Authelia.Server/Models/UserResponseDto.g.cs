@@ -1,6 +1,6 @@
 namespace Authelia.Database.Model
 {
-    public partial class UserSafeDto
+    public partial class UserResponseDto
     {
         public string UserId { get; set; }
         public string UserName { get; set; }

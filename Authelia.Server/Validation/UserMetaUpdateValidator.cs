@@ -1,21 +1,11 @@
 ﻿using FluentValidation;
-using Authelia.Database.Model;
+using Authelia.Server.Requests.Entities;
 
 namespace Authelia.Server.Validation
 {
-    public class UserMetaUpdateValidator : AbstractValidator<UserMetumDto>
+    public class UserMetaUpdateValidator : AbstractValidator<UserMetaUpdateRequest>
     {
         public UserMetaUpdateValidator()
-        {
-            RuleFor(x => x.UserId).NotEmpty();
-            RuleFor(x => x.UserMetaKey).NotEmpty();
-            RuleFor(x => x.UserMetaValue).NotEmpty();
-        }
-    }
-
-    public class UserMetaSafeDtoUpdateValidator : AbstractValidator<UserMetumSafeDto>
-    {
-        public UserMetaSafeDtoUpdateValidator()
         {
             RuleFor(x => x.UserId).NotEmpty();
             RuleFor(x => x.UserMetaKey).NotEmpty();

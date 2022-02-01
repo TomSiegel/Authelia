@@ -36,13 +36,7 @@ namespace Authelia.Server.Extensions
             return response;
         }
 
-        public static UserTokenSafeDto WithToken(this UserTokenSafeDto userToken, string token)
-        {
-            userToken.UserTokenId = token;
-            return userToken;
-        }
-
-        public static UserTokenDto WithToken(this UserTokenDto userToken, string token)
+        public static UserTokenResponseDto WithToken(this UserTokenResponseDto userToken, string token)
         {
             userToken.UserTokenId = token;
             return userToken;
@@ -56,22 +50,22 @@ namespace Authelia.Server.Extensions
             }
         }
 
-        public  static IRuleBuilderOptions<UserDto, string> PhoneNumber(this IRuleBuilderOptions<UserDto, string> builder)
+        public static IRuleBuilderOptions<T, string> PhoneNumber<T>(this IRuleBuilderOptions<T, string> builder)
         {
             return builder.Matches(@"((\(\d{3}\) ?)|(\d{3}-))?\d{3}-\d{4}");
         }
 
-        public static IRuleBuilder<UserDto, string> PhoneNumber(this IRuleBuilder<UserDto, string> builder)
+        public static IRuleBuilder<T, string> PhoneNumber<T>(this IRuleBuilder<T, string> builder)
         {
             return builder.Matches(@"((\(\d{3}\) ?)|(\d{3}-))?\d{3}-\d{4}");
         }
 
-        public static IRuleBuilderOptions<UserDto, string> Password(this IRuleBuilderOptions<UserDto, string> builder, PasswordSecuritySettings settings)
+        public static IRuleBuilderOptions<T, string> Password<T>(this IRuleBuilderOptions<T, string> builder, PasswordSecuritySettings settings)
         {
             return builder.Matches(settings.BuildRegex());
         }
 
-        public static IRuleBuilder<UserDto, string> Password(this IRuleBuilder<UserDto, string> builder, PasswordSecuritySettings settings)
+        public static IRuleBuilder<T, string> Password<T>(this IRuleBuilder<T, string> builder, PasswordSecuritySettings settings)
         {
             return builder.Matches(settings.BuildRegex());
         }

@@ -5,7 +5,7 @@ using Authelia.Server.Security;
 
 namespace Authelia.Server.Validation
 {
-    public class UserLoginValidator : AbstractValidator<LoginUser>
+    public class UserLoginValidator : AbstractValidator<UserLoginRequest>
     {
         public UserLoginValidator()
         {

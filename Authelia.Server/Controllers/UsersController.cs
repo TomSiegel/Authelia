@@ -6,6 +6,7 @@ using Authelia.Server.Security;
 using Authelia.Server.Exceptions;
 using Authelia.Server.Extensions;
 using Authelia.Server.Authorization;
+using Authelia.Server.Requests.Entities;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 
@@ -36,7 +37,7 @@ namespace Authelia.Server.Controllers
         {
             var result = await dbContext.Users.Where(x => x.UserDeletedUtc == null).ToListAsync();
 
-            return new JsonResult(result.Select(x => x.Adapt<UserSafeDto>()));
+            return new JsonResult(result.Select(x => x.Adapt<UserResponseDto>()));
         }
 
         // GET api/<UsersController>/5
@@ -47,13 +48,14 @@ namespace Authelia.Server.Controllers
 
             if (user == null) return NotFound($"user with id {id} not found");
 
-            return new JsonResult(user.Adapt<UserSafeDto>());
+            return new JsonResult(user.Adapt<UserMetumResponseDto>());
         }
 
         // POST api/<UsersController>
         [HttpPost, Authorize]
-        public async Task<IActionResult> Post([FromBody] UserDto[] users)
+        public async Task<IActionResult> Post([FromBody] UserCreateRequest[] users)
         {
+            //validate and format
             foreach (var user in users)
             {
                 var result = await createUserValidator.ValidateAsync(user);
@@ -62,11 +64,7 @@ namespace Authelia.Server.Controllers
                     return BadRequest(result.Adapt<ErrorResponse>()
                         .WithData(user)
                         .WithCode(ErrorCodes.C_InvalidUserCreationObject));
-
-                user.UserId = DbHelpers.CreateGuid();
-                user.UserCreatedUtc = DateTime.UtcNow;
-                user.UserCreatorIp = Request.HttpContext.Connection.RemoteIpAddress?.ToString();
-                user.UserVerified = 0;
+     
                 user.UserPassword = passwordSecurer.Secure(user.UserPassword);
                 user.UserMail = user.UserMail.RemoveWhitespace();
                 user.UserPhone = user.UserPhone.RemoveWhitespace();
@@ -74,14 +72,21 @@ namespace Authelia.Server.Controllers
 
             try
             {
+                //create db-entity and insert
                 foreach (var user in users)
                 {
-                    await dbContext.Users.AddAsync(user.Adapt<User>());
+                    var dbUser = user.Adapt<User>();
+                    dbUser.UserId = DbHelpers.CreateGuid();
+                    dbUser.UserCreatedUtc = DateTime.UtcNow;
+                    dbUser.UserCreatorIp = Request.HttpContext.Connection.RemoteIpAddress?.ToString();
+                    dbUser.UserVerified = 0;
+
+                    await dbContext.Users.AddAsync(dbUser);
                 }
   
                 await dbContext.SaveChangesAsync();
 
-                return new JsonResult(users.Select(x => x.Adapt<UserSafeDto>()));
+                return new JsonResult(users.Select(x => x.Adapt<UserResponseDto>()));
             } catch(Exception ex)
             {
                 return StatusCode(500, ex.Adapt<ErrorResponse>()

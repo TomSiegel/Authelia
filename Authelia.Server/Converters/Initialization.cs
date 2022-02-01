@@ -1,25 +1,19 @@
-﻿using Mapster;
-using Authelia.Server.Exceptions;
+﻿using Authelia.Server.Exceptions;
+using Authelia.Server.Requests.Entities;
 using Authelia.Database.Model;
 using FluentValidation.Results;
 
 namespace Authelia.Server.Converters
 {
-    public class Initialization : ICodeGenerationRegister, IRegister
+    public class Initialization : Mapster.ICodeGenerationRegister, Mapster.IRegister
     {
-        public void Register(CodeGenerationConfig config)
+        public void Register(Mapster.CodeGenerationConfig config)
         {
-            config.AdaptTo("[name]Dto")
-                .ForType<UserMetum>()
-                .ForType<UserToken>()
-                .ForType<User>(options =>
+            config.AdaptTo("[name]ResponseDto")
+                .ForType<UserMetum>(options =>
                 {
-                    options.Ignore(x => x.UserTokens);
-                    options.Ignore(x => x.UserMeta);
-                });
-
-            config.AdaptTo("[name]SafeDto")
-                .ForType<UserMetum>()
+                    options.Ignore(x => x.User);
+                })
                 .ForType<UserToken>(options =>
                 {
                     options.Ignore(x => x.TokenCreatorIp);
@@ -38,14 +32,18 @@ namespace Authelia.Server.Converters
             //    .ForType<User>();
         }
 
-        public void Register(TypeAdapterConfig config)
+        public void Register(Mapster.TypeAdapterConfig config)
         {
             config.NewConfig<Exception, ErrorResponse>()
                 .Map(d => d.Message, s => s.Message)
                 .Map(d => d.InnerError, s => s.InnerException);
 
             config.NewConfig<ValidationResult, ErrorResponse>()
-                .Map(d => d.Message, s => String.Join(Environment.NewLine, s.Errors.Select(err => err.ToString())));
+                .Map(d => d.Message, s => string.Join(Environment.NewLine, s.Errors.Select(err => err.ToString())));
+
+            config.NewConfig<UserCreateRequest, User>();
+            config.NewConfig<UserMetaCreateRequest, UserMetum>();
+            config.NewConfig<UserMetaUpdateRequest, UserMetum>();
         }
     }
 }

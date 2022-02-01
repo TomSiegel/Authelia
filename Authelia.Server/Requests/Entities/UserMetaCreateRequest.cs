@@ -1,10 +1,9 @@
-namespace Authelia.Database.Model
+﻿namespace Authelia.Server.Requests.Entities
 {
-    public partial class UserMetumDto
+    public class UserMetaCreateRequest
     {
         public string UserId { get; set; }
         public string UserMetaKey { get; set; }
         public string UserMetaValue { get; set; }
-        public Authelia.Database.Model.UserDto User { get; set; }
     }
 }
