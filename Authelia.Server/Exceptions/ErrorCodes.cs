@@ -11,6 +11,9 @@
         public const string C_DatabaseItemInsertError = "A-4007";
         public const string C_DatabaseItemUpdateError = "A-4008";
         public const string C_DatabaseItemDeleteError = "A-4009";
+        public const string C_NullEntity = "A-4010";
+        public const string C_InvalidAdminCreationObject = "A-4011";
+        public const string C_AdminAlreadyExists = "A-4012";
 
 
 

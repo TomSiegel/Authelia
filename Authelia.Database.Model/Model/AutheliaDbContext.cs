@@ -85,6 +85,10 @@ namespace Authelia.Database.Model
                 entity.Property(e => e.UserVerified)
                     .HasColumnType("tinyint")
                     .HasColumnName("user_verified");
+
+                entity.Property(e => e.UserIsAdmin)
+                    .HasColumnType("tinyint")
+                    .HasColumnName("user_is_admin");
             });
 
             modelBuilder.Entity<UserMetum>(entity =>

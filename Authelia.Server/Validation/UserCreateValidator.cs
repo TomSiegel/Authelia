@@ -9,7 +9,7 @@ namespace Authelia.Server.Validation
     {
         public UserCreateValidator()
         {
-            RuleFor(x => x.UserName).NotEmpty().Matches("^[a-zA-Z0-9_-]{2,30}$");
+            RuleFor(x => x.UserName).NotEmpty().Username();
             RuleFor(x => x.UserPassword).NotEmpty().Password(PasswordSecuritySettings.Default);
             RuleFor(x => x.UserMail).EmailAddress(FluentValidation.Validators.EmailValidationMode.AspNetCoreCompatible);
             RuleFor(x => x.UserPhone).PhoneNumber();

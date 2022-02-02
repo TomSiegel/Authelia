@@ -8,6 +8,7 @@ namespace Authelia.Database.Model
         public System.DateTime? UserCreatedUtc { get; set; }
         public string UserCreatorIp { get; set; }
         public byte UserVerified { get; set; }
+        public byte UserIsAdmin { get; set; }
         public string UserMail { get; set; }
         public string UserPhone { get; set; }
         public System.DateTime? UserDeletedUtc { get; set; }

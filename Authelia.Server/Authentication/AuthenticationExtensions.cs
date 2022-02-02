@@ -10,14 +10,19 @@ namespace Authelia.Server.Authentication
         public static ClaimsPrincipal CreatePrincipal(this User user, string scheme)
         {
             var claims = new Claim[] {
-                    new Claim(ClaimConstants.Username, user.UserName),
-                    new Claim(ClaimConstants.UserIdentifier, user.UserId),
-                    new Claim(ClaimConstants.Email, user.UserMail ?? ""),
-                    new Claim(ClaimConstants.Phone, user.UserPhone ?? ""),
-                    new Claim(ClaimConstants.Verified, user.UserVerified.ToString())
-                };
+                new Claim(ClaimConstants.Username, user.UserName),
+                new Claim(ClaimConstants.UserIdentifier, user.UserId),
+                new Claim(ClaimConstants.Email, user.UserMail ?? ""),
+                new Claim(ClaimConstants.Phone, user.UserPhone ?? ""),
+                new Claim(ClaimConstants.Verified, user.UserVerified.ToString())
+            };
             var identity = new ClaimsIdentity(claims, scheme);
             var principal = new ClaimsPrincipal(identity);
+
+            if (user.UserIsAdmin == 1)
+            {
+                identity.AddClaim(new Claim(ClaimConstants.Role, "admin"));
+            }
 
             return principal;
         }

@@ -152,6 +152,22 @@ namespace Authelia.Server.Controllers
             }
         }
 
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put([FromRoute] string id, [FromBody] UserMetaUpdateRequest[] metaItems)
+        {
+            if (metaItems != null)
+            {
+                foreach (var item in metaItems)
+                {
+                    item.UserId = id;
+                }
+            }
+
+            return await Put(metaItems);
+        }
+
+
         // DELETE api/<UserMetaController>/5
         [HttpDelete("{id}/{name}")]
         public async Task<IActionResult> Delete([FromRoute] string id, [FromRoute] string name)

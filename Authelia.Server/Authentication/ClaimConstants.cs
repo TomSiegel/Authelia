@@ -9,5 +9,6 @@ namespace Authelia.Server.Authentication
         public const string UserIdentifier = ClaimTypes.NameIdentifier;
         public const string Email = ClaimTypes.Email;
         public const string Phone = ClaimTypes.MobilePhone;
+        public const string Role = ClaimTypes.Role;
     }
 }

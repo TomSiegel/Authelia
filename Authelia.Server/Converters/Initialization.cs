@@ -44,6 +44,7 @@ namespace Authelia.Server.Converters
             config.NewConfig<UserCreateRequest, User>();
             config.NewConfig<UserMetaCreateRequest, UserMetum>();
             config.NewConfig<UserMetaUpdateRequest, UserMetum>();
+            config.NewConfig<AdminCreateRequest, User>();
         }
     }
 }

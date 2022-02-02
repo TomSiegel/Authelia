@@ -60,6 +60,16 @@ namespace Authelia.Server.Extensions
             return builder.Matches(@"((\(\d{3}\) ?)|(\d{3}-))?\d{3}-\d{4}");
         }
 
+        public static IRuleBuilderOptions<T, string> Username<T>(this IRuleBuilderOptions<T, string> builder)
+        {
+            return builder.Matches("^[a-zA-Z0-9_-]{2,30}$");
+        }
+
+        public static IRuleBuilder<T, string> Username<T>(this IRuleBuilder<T, string> builder)
+        {
+            return builder.Matches("^[a-zA-Z0-9_-]{2,30}$");
+        }
+
         public static IRuleBuilderOptions<T, string> Password<T>(this IRuleBuilderOptions<T, string> builder, PasswordSecuritySettings settings)
         {
             return builder.Matches(settings.BuildRegex());

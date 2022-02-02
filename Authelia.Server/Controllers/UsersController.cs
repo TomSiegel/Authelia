@@ -78,8 +78,9 @@ namespace Authelia.Server.Controllers
                     var dbUser = user.Adapt<User>();
                     dbUser.UserId = DbHelpers.CreateGuid();
                     dbUser.UserCreatedUtc = DateTime.UtcNow;
-                    dbUser.UserCreatorIp = Request.HttpContext.Connection.RemoteIpAddress?.ToString();
+                    dbUser.UserCreatorIp = HttpContext.GetUserIp();
                     dbUser.UserVerified = 0;
+                    dbUser.UserIsAdmin = 0;
 
                     await dbContext.Users.AddAsync(dbUser);
                 }

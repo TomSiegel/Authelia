@@ -11,6 +11,11 @@ namespace Authelia.Server.Security
         public const int MaxPasswordLength = 50;
 
         public static PasswordSecuritySettings Default { get; set; } = new PasswordSecuritySettings();
+        public static PasswordSecuritySettings Admin { get; set; } = new PasswordSecuritySettings()
+        {
+            MinLength = 8,
+            Security = PasswordSecurityCheck.LowercaseLetters | PasswordSecurityCheck.UppercaseLetters | PasswordSecurityCheck.NumericDigits | PasswordSecurityCheck.SpecialCharacters
+        };
 
         public uint MinLength { get; set; } = 8;
 
