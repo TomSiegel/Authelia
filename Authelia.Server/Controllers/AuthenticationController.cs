@@ -42,10 +42,13 @@ namespace Authelia.Server.Controllers
             try
             {
                 var password = passwordSecurer.Secure(user.Password);
-                var userResult = await dbContext.Users.FirstOrDefaultAsync(u => (
-                    u.UserName == user.UserName ||
-                    u.UserMail == user.UserName ||
-                    u.UserPhone == user.UserName) && u.UserPassword == password);
+                var userResult = await dbContext.Users
+                    .Include(u => u.UserRoles)
+                    .ThenInclude(x => x.Role)
+                    .Where(u => (
+                        u.UserName == user.UserName ||
+                        u.UserMail == user.UserName ||
+                        u.UserPhone == user.UserName) && u.UserPassword == password).SingleOrDefaultAsync();
 
                 if (userResult == null) return NotFound("user not registered");
 
@@ -79,7 +82,7 @@ namespace Authelia.Server.Controllers
             return Ok();
         }
 
-        [HttpGet("token"), Authorize]
+        [HttpGet("token"), Authorize, Role("developer")]
         public async Task<IActionResult> CreateToken()
         {
             try

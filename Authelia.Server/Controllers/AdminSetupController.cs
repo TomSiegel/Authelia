@@ -31,7 +31,7 @@ namespace Authelia.Server.Controllers
         }
 
         // GET: api/<AdminSetupController>
-        [HttpGet, AllowAnonymous, Role("admin")]
+        [HttpGet, AllowAnonymous]
         public async Task<AdminSetupResponse> Get()
         {
             var count = await dbContext.Users.Where(x => x.UserIsAdmin == 1).CountAsync();

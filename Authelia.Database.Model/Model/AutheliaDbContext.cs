@@ -17,8 +17,10 @@ namespace Authelia.Database.Model
         {
         }
 
+        public virtual DbSet<Role> Roles { get; set; }
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<UserMetum> UserMeta { get; set; }
+        public virtual DbSet<UserRole> UserRoles { get; set; }
         public virtual DbSet<UserToken> UserTokens { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -32,6 +34,27 @@ namespace Authelia.Database.Model
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Role>(entity =>
+            {
+                entity.ToTable("roles");
+
+                entity.HasIndex(e => e.RoleName, "role_name_UNIQUE")
+                    .IsUnique();
+
+                entity.Property(e => e.RoleId)
+                    .HasMaxLength(32)
+                    .HasColumnName("role_id");
+
+                entity.Property(e => e.RoleName)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnName("role_name");
+
+                entity
+                    .HasMany(x => x.UserRoles)
+                    .WithOne(x => x.Role);
+            });
+
             modelBuilder.Entity<User>(entity =>
             {
                 entity.ToTable("users");
@@ -58,6 +81,10 @@ namespace Authelia.Database.Model
                     .HasColumnName("user_creator_ip");
 
                 entity.Property(e => e.UserDeletedUtc).HasColumnName("user_deleted_utc");
+
+                entity.Property(e => e.UserIsAdmin)
+                    .HasColumnType("tinyint")
+                    .HasColumnName("user_is_admin");
 
                 entity.Property(e => e.UserMail)
                     .HasMaxLength(128)
@@ -86,9 +113,9 @@ namespace Authelia.Database.Model
                     .HasColumnType("tinyint")
                     .HasColumnName("user_verified");
 
-                entity.Property(e => e.UserIsAdmin)
-                    .HasColumnType("tinyint")
-                    .HasColumnName("user_is_admin");
+                entity
+                    .HasMany(x => x.UserRoles)
+                    .WithOne(x => x.User);
             });
 
             modelBuilder.Entity<UserMetum>(entity =>
@@ -117,6 +144,34 @@ namespace Authelia.Database.Model
                     .WithMany(p => p.UserMeta)
                     .HasForeignKey(d => d.UserId)
                     .HasConstraintName("FK_META_USER");
+            });
+
+            modelBuilder.Entity<UserRole>(entity =>
+            {
+                entity.HasKey(e => new { e.UserId, e.RoleId })
+                    .HasName("PRIMARY");
+
+                entity.ToTable("user_roles");
+
+                entity.HasIndex(e => e.RoleId, "FK_UR_TO_ROLES_idx");
+
+                entity.Property(e => e.UserId)
+                    .HasMaxLength(32)
+                    .HasColumnName("user_id");
+
+                entity.Property(e => e.RoleId)
+                    .HasMaxLength(32)
+                    .HasColumnName("role_id");
+
+                entity.HasOne(d => d.Role)
+                    .WithMany(p => p.UserRoles)
+                    .HasForeignKey(d => d.RoleId)
+                    .HasConstraintName("FK_UR_TO_ROLES");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.UserRoles)
+                    .HasForeignKey(d => d.UserId)
+                    .HasConstraintName("FK_UR_TO_USERS");
             });
 
             modelBuilder.Entity<UserToken>(entity =>

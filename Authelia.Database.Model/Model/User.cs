@@ -10,6 +10,7 @@ namespace Authelia.Database.Model
         public User()
         {
             UserMeta = new HashSet<UserMetum>();
+            UserRoles = new HashSet<UserRole>();
             UserTokens = new HashSet<UserToken>();
         }
 
@@ -20,12 +21,13 @@ namespace Authelia.Database.Model
         public DateTime? UserCreatedUtc { get; set; }
         public string UserCreatorIp { get; set; }
         public byte UserVerified { get; set; }
-        public byte UserIsAdmin { get; set; }
         public string UserMail { get; set; }
         public string UserPhone { get; set; }
         public DateTime? UserDeletedUtc { get; set; }
+        public byte UserIsAdmin { get; set; }
 
         public virtual ICollection<UserMetum> UserMeta { get; set; }
+        public virtual ICollection<UserRole> UserRoles { get; set; }
         public virtual ICollection<UserToken> UserTokens { get; set; }
     }
 }

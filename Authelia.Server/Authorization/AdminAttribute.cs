@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Authentication;
+using Authelia.Server.Authentication;
 using Authelia.Server.Exceptions;
 
 namespace Authelia.Server.Authorization
@@ -18,7 +18,7 @@ namespace Authelia.Server.Authorization
     {
         public override void Authorize(AuthorizationFilterContext context)
         {
-            if (!context.HttpContext.User.IsInRole("admin"))
+            if (!context.HttpContext.User.IsAdmin())
             {
                 context.Result = new UnauthorizedObjectResult(new ErrorResponse()
                 {

@@ -7,7 +7,7 @@ namespace Authelia.Server.Authorization
 {
     public class RoleAttribute : TypeFilterAttribute
     {
-        public RoleAttribute(string role, string message = $"the user doesn't inherit the specified role") : base(typeof(RoleFilter))
+        public RoleAttribute(string role, string message = $"the user doesn't claim the specified role") : base(typeof(RoleFilter))
         {
             Arguments = new[] { role, message };
         }
