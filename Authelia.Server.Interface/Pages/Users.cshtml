@@ -1,0 +1,19 @@
+﻿@page
+@model Authelia.Server.Interface.Pages.UsersModel
+@{
+}
+
+<div id="users_placeholder">
+
+</div>
+
+<script type="module">
+    import {UserList} from "./integrations/users.js";
+    
+    var userList = new UserList({
+        target: document.getElementById("users_placeholder"),
+        props: {
+        }
+    });
+    console.log(userList);
+</script>

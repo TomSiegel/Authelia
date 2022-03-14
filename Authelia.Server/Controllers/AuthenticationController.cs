@@ -82,8 +82,52 @@ namespace Authelia.Server.Controllers
             return Ok();
         }
 
-        [HttpGet("token"), Authorize, Role("developer")]
+        [HttpGet("token"), Authorize]
         public async Task<IActionResult> CreateToken()
+        {
+            return await CreateToken(60);
+        }
+
+        [HttpGet("token/{minutes}"), Authorize]
+        public async Task<IActionResult> CreateToken(int minutes)
+        {
+            if (minutes <= 0) return BadRequest("token expiration time must be greater than 0");
+
+            try
+            {
+                var id = HttpContext.User.GetClaim(ClaimConstants.UserIdentifier);
+                var user = await dbContext.Users.SingleOrDefaultAsync(u => u.UserId == id);
+
+                if (user == null)
+                    return NotFound("currently authenticated user is not registered");
+
+                var timestamp = DateTime.UtcNow;
+                var tokenId = DbHelpers.CreateGuid();
+                var token = new UserToken()
+                {
+                    TokenCreatedUtc = timestamp,
+                    TokenCreatorIp = HttpContext.GetUserIp(),
+                    TokenExpiration = timestamp.AddMinutes(minutes),
+                    UserId = user.UserId,
+                    UserTokenId = passwordSecurer.Secure(tokenId)
+                };
+
+                await dbContext.UserTokens.AddAsync(token);
+                await dbContext.SaveChangesAsync();
+
+                return new JsonResult(token
+                    .Adapt<UserTokenResponseDto>()
+                    .WithToken(tokenId));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Adapt<ErrorResponse>()
+                    .WithCode(ErrorCodes.S_UnknownServerError));
+            }
+        }
+
+        [HttpGet("permanent-token"), Authorize]
+        public async Task<IActionResult> CreatePermanentToken()
         {
             try
             {
@@ -99,7 +143,7 @@ namespace Authelia.Server.Controllers
                 {
                     TokenCreatedUtc = timestamp,
                     TokenCreatorIp = HttpContext.GetUserIp(),
-                    TokenExpiration = timestamp.AddHours(1),
+                    TokenExpiration = null,
                     UserId = user.UserId,
                     UserTokenId = passwordSecurer.Secure(tokenId)
                 };
@@ -110,7 +154,43 @@ namespace Authelia.Server.Controllers
                 return new JsonResult(token
                     .Adapt<UserTokenResponseDto>()
                     .WithToken(tokenId));
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Adapt<ErrorResponse>()
+                    .WithCode(ErrorCodes.S_UnknownServerError));
+            }
+        }
+
+
+        [HttpDelete("token"), Authorize]
+        public async Task<IActionResult> DeleteTokens()
+        {
+            try
+            {
+                var entries = dbContext.UserTokens.Where(x => x.UserId == HttpContext.GetUserId());
+                dbContext.UserTokens.RemoveRange(entries);
+                await dbContext.SaveChangesAsync();
+                return Ok();
+            } catch(Exception ex)
+            {
+                return StatusCode(500, ex.Adapt<ErrorResponse>()
+                    .WithCode(ErrorCodes.S_UnknownServerError));
+            }
+        }
+
+        [HttpDelete("token/{token}"), Authorize]
+        public async Task<IActionResult> DeleteToken(string token)
+        {
+            try
+            {
+                var entry = await dbContext.UserTokens.FirstOrDefaultAsync(x => x.UserTokenId == token);
+                if (entry == null) return NotFound("token not found");
+                dbContext.UserTokens.Remove(entry);
+                await dbContext.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
             {
                 return StatusCode(500, ex.Adapt<ErrorResponse>()
                     .WithCode(ErrorCodes.S_UnknownServerError));

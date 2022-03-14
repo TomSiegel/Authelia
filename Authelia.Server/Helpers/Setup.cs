@@ -4,6 +4,7 @@ using Authelia.Server.Extensions;
 using Authelia.Database.Model;
 using FluentValidation.AspNetCore;
 using Mapster;
+using Microsoft.AspNetCore.Authentication;
 
 namespace Authelia.Server.Helpers
 {
@@ -11,6 +12,7 @@ namespace Authelia.Server.Helpers
     {
         public static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
+            services.AddControllers();
             services.AddFluentValidation(options =>
             {
                 options.RegisterValidatorsFromAssemblyContaining<Setup>(scan =>
@@ -25,8 +27,10 @@ namespace Authelia.Server.Helpers
                 options.UseMySQL(settings.GetConnectionString());
             });
             services.AddSingleton<Security.IPasswordSecurer, Security.Password256HashSecurer>();
+            services.AddAutheliaIdentity();
             services.AddAutheliaAuthentication();
             services.AddAutheliaAuthorization();
+            
         }
 
         public static void Configure(IApplicationBuilder app)
@@ -34,7 +38,6 @@ namespace Authelia.Server.Helpers
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Authelia.Server", "Authelia
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Authelia.Client", "Authelia.Client\Authelia.Client.csproj", "{C4C136EB-7261-4E60-8E03-C2F5C54B7A06}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Authelia.Server.Interface", "Authelia.Server.Interface\Authelia.Server.Interface.csproj", "{DB75BA29-6E46-4548-A9BA-C6798F7A5537}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{C4C136EB-7261-4E60-8E03-C2F5C54B7A06}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C4C136EB-7261-4E60-8E03-C2F5C54B7A06}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C4C136EB-7261-4E60-8E03-C2F5C54B7A06}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB75BA29-6E46-4548-A9BA-C6798F7A5537}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB75BA29-6E46-4548-A9BA-C6798F7A5537}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB75BA29-6E46-4548-A9BA-C6798F7A5537}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB75BA29-6E46-4548-A9BA-C6798F7A5537}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

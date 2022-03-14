@@ -6,17 +6,19 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
 using Mapster;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Diagnostics;
 
 namespace Authelia.Server.Extensions
 {
     public static class Extensions
     {
-        
+
         public static ErrorResponse WithMessage(this ErrorResponse response, string message)
         {
             response.Message = message;
             return response;
-       }
+        }
 
         public static ErrorResponse WithData(this ErrorResponse response, object data)
         {
@@ -80,19 +82,42 @@ namespace Authelia.Server.Extensions
             return builder.Matches(settings.BuildRegex());
         }
 
-       
+        public static IServiceCollection AddAutheliaIdentity(this IServiceCollection services)
+        {
+            services.AddIdentity<AutheliaUser, AutheliaRole>().AddDefaultTokenProviders();
+            services.AddTransient<IUserStore<AutheliaUser>, AutheliaUserStore>();
+            services.AddTransient<IRoleStore<AutheliaRole>, AutheliaRoleStore>();
+            return services;
+        }
+
         public static IServiceCollection AddAutheliaAuthentication(this IServiceCollection services)
         {
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddScheme<AutheliaAuthenticationOptions, AutheliaAuthenticationHandler>(AutheliaSchemes.AutheliaScheme, options => {
+            services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = AutheliaSchemes.DefaultScheme;
+                options.DefaultChallengeScheme = AutheliaSchemes.DefaultScheme;
+                options.DefaultForbidScheme = AutheliaSchemes.DefaultScheme;
+                options.DefaultSignInScheme = AutheliaSchemes.DefaultScheme;
+                options.DefaultSignOutScheme = AutheliaSchemes.DefaultScheme;
+                options.DefaultAuthenticateScheme = AutheliaSchemes.DefaultScheme;
+            })
+                .AddCookie(AutheliaSchemes.CookieScheme, options =>
+                {
+                    options.LoginPath = new PathString("/authentication/login");
+                    options.LogoutPath = new PathString("/authentication/logout");
+                    options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+                    options.Cookie.Name = "AutheliaSession";
+                    options.Cookie.HttpOnly = true;
+                    options.Cookie.SameSite = SameSiteMode.None;
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                })
+                .AddScheme<AutheliaAuthenticationOptions, AutheliaAuthenticationHandler>(AutheliaSchemes.AutheliaScheme, options => { });
 
-                });
             return services;
         }
 
         public static IServiceCollection AddAutheliaAuthorization(this IServiceCollection services)
-        {      
+        {
             services.AddAuthorization();
             return services;
         }
@@ -101,6 +126,21 @@ namespace Authelia.Server.Extensions
         {
             app.UseAuthentication();
 
+            return app;
+        }
+
+        public static IApplicationBuilder UseAutheliaExceptionHandler(this IApplicationBuilder app)
+        {
+            app.UseExceptionHandler(c => c.Run(async context =>
+            {
+                var exception = context.Features
+                    .Get<IExceptionHandlerPathFeature>()
+                    .Error;
+                var response = exception
+                    .Adapt<ErrorResponse>()
+                    .WithCode(ErrorCodes.S_UnknownServerError);
+                await context.Response.WriteAsJsonAsync(response);
+            }));
             return app;
         }
 
@@ -114,6 +154,16 @@ namespace Authelia.Server.Extensions
             }
 
             return null;
+        }
+
+        public static string GetUserId(this ClaimsPrincipal principal)
+        {
+            return principal.GetClaim(ClaimConstants.UserIdentifier);
+        }
+
+        public static string GetUserId(this HttpContext context)
+        {
+            return context?.User?.GetClaim(ClaimConstants.UserIdentifier);
         }
     }
 }

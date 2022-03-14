@@ -21,8 +21,8 @@ namespace Authelia.Server
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
             services.AddSwaggerGen();
             Setup.ConfigureServices(services, Configuration);
         }
@@ -38,16 +38,7 @@ namespace Authelia.Server
 
             Setup.Configure(app);
 
-            app.UseExceptionHandler(c => c.Run(async context =>
-            {
-                var exception = context.Features
-                    .Get<IExceptionHandlerPathFeature>()
-                    .Error;
-                var response = exception
-                    .Adapt<ErrorResponse>()
-                    .WithCode(ErrorCodes.S_UnknownServerError);
-                await context.Response.WriteAsJsonAsync(response);
-            }));
+            app.UseAutheliaExceptionHandler();
         }
     }
 }

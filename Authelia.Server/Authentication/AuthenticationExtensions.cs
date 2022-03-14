@@ -38,7 +38,7 @@ namespace Authelia.Server.Authentication
 
         public static async Task SignInAsync(this User user, HttpContext context, string scheme)
         {
-            await context.SignInAsync(user.CreatePrincipal(scheme));
+            await context.SignInAsync(scheme, user.CreatePrincipal(scheme));
         }
 
         public static async Task SignInAsync(this User user, HttpContext context)

@@ -1,0 +1,23 @@
+﻿@page
+@model Authelia.Server.Interface.Pages.LoginModel
+@{
+}
+
+<div>
+    <div></div>
+    <div id="login_placeholder_svelte">
+        
+    </div>
+    <div></div>
+</div>
+
+<script type="module">
+    import {LoginFormular} from "./integrations/login.js";
+
+    var signInForm = new LoginFormular({
+        target: document.getElementById("login_placeholder_svelte"),
+        props: {
+            redirect: "Privacy"
+        }
+    })
+</script>

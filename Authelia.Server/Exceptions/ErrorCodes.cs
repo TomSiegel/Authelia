@@ -19,5 +19,9 @@
 
 
         public const string S_UnknownServerError = "A-5000";
+        public const string S_UserStoreAlreadyCreated = "A-5001";
+        public const string S_RoleStoreAlreadyCreated = "A-5002";
+        public const string S_ArgumentNull = "A-5003";
+        public const string S_DatabaseInsert = "A-5004";
     }
 }
